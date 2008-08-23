@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-# TODO check urllib2 - URLError and others - 2* imoprted
 import sys, getopt, string, socket, os, base64, urllib2, time
 
 start = time.time()
@@ -22,21 +21,6 @@ def usage( msg ):
    -p port
 """
    sys.exit(3)
-
-def ipFormatCheck(ip_str):
-    if len(ip_str.split()) != 1:
-        return False
-    ip = ip_str.split('.')
-    if len(ip) != 4:
-        return False
-    for i,item in enumerate(ip):
-        try:
-            ip[i] = int(ip[i])
-            if ip[i] > 255:
-                return False
-        except:
-            return False
-    return True
 
 def ipIncrement(ip_str):
     ip = ip_str.split('.')
@@ -78,14 +62,31 @@ class Connect:
         return working
     
     def HTTPConn(self):
+        ret = 0
         url = 'http://%s:%i/' % (self.ip, self.port)
         req = urllib2.Request( url )
         try:
             resp = urllib2.urlopen( req )
             self.page = resp.read()
+            resp.close()
         except urllib2.URLError, e:
-            return e.code
-        return 200
+            ret =  e.code
+        return ret
+
+def ipFormatCheck(ip_str):
+    if len(ip_str.split()) != 1:
+        return False
+    ip = ip_str.split('.')
+    if len(ip) != 4:
+        return False
+    for i,item in enumerate(ip):
+        try:
+            ip[i] = int(ip[i])
+            if ip[i] > 255:
+                return False
+        except:
+            return False
+    return True
 
 
 try:
@@ -117,7 +118,7 @@ for op, res in opts :
         port = res
 
 if ip == 0 or  rng == 0:
-   usage("ip needed!!");
+   usage("ip and range needed!!");
 
 print "[!] range: %d" % rng
 
